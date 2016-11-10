@@ -1,0 +1,74 @@
+<!doctype html>
+<title>Pictionary</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+<!-- CSS -->
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    color: #1E2835;
+    background-color: #F8F8F8;
+    font-size: 1.5em;
+}
+
+h1 {
+    background-color: #9ABBFF;
+    margin:  0 0 20px 0;
+    padding: 20px;
+    
+}
+
+#top-message {
+    text-align: center;
+    padding: 10px;
+}
+
+canvas {
+    width: 800px;
+    height: 600px;
+    border: 1px #C7CACD solid;
+    display: block;
+    margin: 0 auto;
+}
+
+#otherUsersGuess, #whoIsTheDrawer{
+    text-align: center;
+    font-weight: bold;
+}
+</style>
+
+<!-- JS -->
+<script src="//code.jquery.com/jquery-2.1.0.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="main.js"></script>
+
+<!-- HTML -->
+
+<div id="nicknameWrap">
+    <h3 class="title">What's your nickname?</h3>
+    <form id = "nicknameForm">
+        <input id="usernameInput" type="text" maxlength="14" />
+        <input class="userButton" type="submit" />
+    </form>
+</div>
+
+<br/>
+
+<div id="main">
+    <h1>Pictionary</h1>
+    <div id="top-message">
+        <div id="guess" style="display: none">
+            Make a guess: <input type="text">
+        </div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <br/>
+    <div id="whoIsTheDrawer"></div>
+    <div id="otherUsersGuess"></div>
+</div>
