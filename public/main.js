@@ -41,7 +41,7 @@ var pictionary = function() {
     var state = {
         user: {},
         userWhoDraws: {}
-    }
+    };
     
     ///// functions to modify the DOM /////
     
@@ -57,34 +57,33 @@ var pictionary = function() {
     canvas[0].height = canvas[0].offsetHeight;
     
     var displayOtherUsersGuess = function(usersGuess){
-        otherUsersGuess.text('This is' + ' ' + usersGuess.user + "'s" + ' ' + 'guess:' + ' ' + usersGuess.guess)
-    }
+        otherUsersGuess.text('This is' + ' ' + usersGuess.user + "'s" + ' ' + 'guess:' + ' ' + usersGuess.guess);
+    };
     
     var displayWhoIsDrawer = function(usersArray){
         var userWhoWillDraw = usersArray.splice(0,1);
-        state.userWhoDraws['nickname'] = userWhoWillDraw[0].nickname
-        state.userWhoDraws['id'] = userWhoWillDraw[0].id
-        whoIsTheDrawerDiv.text('It is' + ' ' + state.userWhoDraws.nickname + "'s" + ' ' + 'turn to draw')
+        state.userWhoDraws['nickname'] = userWhoWillDraw[0].nickname;
+        state.userWhoDraws['id'] = userWhoWillDraw[0].id;
+        whoIsTheDrawerDiv.text('It is' + ' ' + state.userWhoDraws.nickname + "'s" + ' ' + 'turn to draw');
         var randomWordForDrawer = words[Math.floor(Math.random() * words.length)];
         state.userWhoDraws['randomWord'] = randomWordForDrawer;
-    }
+    };
     
     var displayRandomWordForDrawer = function(userWhoDraws){
-        wordToDrawDiv.text('The word you have to draw is:' + ' ' + userWhoDraws.randomWord)
-    }
+        wordToDrawDiv.text('The word you have to draw is:' + ' ' + userWhoDraws.randomWord);
+    };
     
     var userChoseCorrectWord = function(userGuess){
-        console.log(userGuess.guess)
+        console.log(userGuess.guess);
         if(userGuess.guess === state.userWhoDraws.randomWord){
-            alert(userGuess.user + ' ' + 'wins')
+            alert(userGuess.user + ' ' + 'wins');
             // whoIsTheDrawerDiv.html(userGuess.user + ' ' + 'wins!!! Press button to play again');
         }
-    }
+    };
     
     var userDisconnected = function(user){
         alert(user + ' ' + "went offline");
-    }
-    
+    };
     
     ///// DOM event listeners /////
     
@@ -100,12 +99,14 @@ var pictionary = function() {
     
     // when user presses play button
     playButton.on('click', function(event){
-        event.preventDefault()
-        socket.emit('word', state.userWhoDraws)
-        if(state.user.nickname !== state.userWhoDraws.nickname){
-            guess.show()
+        event.preventDefault();
+        if(state.user.nickname === state.userWhoDraws.nickname){
+            socket.emit('word', state.userWhoDraws);
         }
-    })
+        if(state.user.nickname !== state.userWhoDraws.nickname){
+            guess.show();
+        }
+    });
     
     // when user moves mouse
     canvas.on('mousemove', function(event, userWhoDraws) {
@@ -133,28 +134,27 @@ var pictionary = function() {
             return;
         }
         var userGuessInput = guessBox.val();
-        var userWhoGuessed = state.user.nickname
-        var userGuess = {user:userWhoGuessed, guess:userGuessInput}
-        socket.emit('guess', userGuess)
+        var userWhoGuessed = state.user.nickname;
+        var userGuess = {user:userWhoGuessed, guess:userGuessInput};
+        socket.emit('guess', userGuess);
         guessBox.val('');
     };
     
-    
     ///// Listeners for server events //////
     
-    socket.on('drawer', displayWhoIsDrawer)
+    socket.on('drawer', displayWhoIsDrawer);
     
-    socket.on('draw', draw)
+    socket.on('draw', draw);
     
     guessBox.on('keydown', onKeyDown);
     
-    socket.on('guess', displayOtherUsersGuess)
+    socket.on('guess', displayOtherUsersGuess);
     
-    socket.on('word', displayRandomWordForDrawer)
+    socket.on('word', displayRandomWordForDrawer);
     
-    socket.on('userWins', userChoseCorrectWord)
+    socket.on('userWins', userChoseCorrectWord);
     
-    socket.on('user-has-disconnected', userDisconnected)
+    socket.on('user-has-disconnected', userDisconnected);
 };
 
 $(document).ready(function() { // selects the canvas element

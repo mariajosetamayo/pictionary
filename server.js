@@ -11,31 +11,29 @@ var io = socket_io(server);
 var usersArray = [];
 
 io.on('connection', function (socket){
-    console.log('client connected')
+    console.log('client connected');
     
     socket.on('users', function(user) {
-        socket.user = user
+        socket.user = user;
         usersArray.push(user);
-        socket.emit('drawer', usersArray)
-    })
+        socket.emit('drawer', usersArray);
+    });
     
     socket.on('draw', function(positionObject){
-        socket.broadcast.emit('draw', positionObject)
-    })
+        socket.broadcast.emit('draw', positionObject);
+    });
     
     socket.on('guess', function(userGuess){
-        socket.broadcast.emit('guess', userGuess)
-        io.sockets.emit('userWins', userGuess)
-    })
+        socket.broadcast.emit('guess', userGuess);
+        io.sockets.emit('userWins', userGuess);
+    });
     
     socket.on('word', function (userWhoDraws){
-        var userWhoWillDrawId = userWhoDraws.id
-        console.log("this is the user", userWhoDraws)
-        io.sockets.to(userWhoWillDrawId).emit('word', userWhoDraws)
+        var userWhoWillDrawId = userWhoDraws.id;
+        io.sockets.to(userWhoWillDrawId).emit('word', userWhoDraws);
     });
     
     socket.on('disconnect', function(user){
-        console.log("user disconnected")
         socket.broadcast.emit('user-has-disconnected', socket.user.nickname);
     });
 })
