@@ -18,12 +18,29 @@ var pictionary = function() {
     var usernameInput = $('#usernameInput')
     var whoIsTheDrawerDiv = $('#whoIsTheDrawer')
     var topMessage = $('#top-message')
+    var playButton = $('#playButton')
+    var wordToDrawDiv = $('#wordToDraw')
+    var words = [
+        "word", "letter", "number", "person", "pen", "class", "people",
+        "sound", "water", "side", "place", "man", "men", "woman", "women", "boy",
+        "girl", "year", "day", "week", "month", "name", "sentence", "line", "air",
+        "land", "home", "hand", "house", "picture", "animal", "mother", "father",
+        "brother", "sister", "world", "head", "page", "country", "question",
+        "answer", "school", "plant", "food", "sun", "state", "eye", "city", "tree",
+        "farm", "story", "sea", "night", "day", "life", "north", "south", "east",
+        "west", "child", "children", "example", "paper", "music", "river", "car",
+        "foot", "feet", "book", "science", "room", "friend", "idea", "fish",
+        "mountain", "horse", "watch", "color", "face", "wood", "list", "bird",
+        "body", "dog", "family", "song", "door", "product", "wind", "ship", "area",
+        "rock", "order", "fire", "problem", "piece", "top", "bottom", "king",
+        "space"
+    ];
     
     // state object to save user's details
     
     var state = {
         user: {},
-        userWhoDraws: []
+        userWhoDraws: {}
     }
     
     ///// functions to modify the DOM /////
@@ -44,8 +61,24 @@ var pictionary = function() {
     }
     
     var displayWhoIsDrawer = function(usersArray){
-        state.userWhoDraws = usersArray.splice(0,1);
-        whoIsTheDrawerDiv.text('It is' + ' ' + state.userWhoDraws[0].nickname + "'s" + ' ' + 'turn to draw')
+        var userWhoWillDraw = usersArray.splice(0,1);
+        state.userWhoDraws['nickname'] = userWhoWillDraw[0].nickname
+        state.userWhoDraws['id'] = userWhoWillDraw[0].id
+        whoIsTheDrawerDiv.text('It is' + ' ' + state.userWhoDraws.nickname + "'s" + ' ' + 'turn to draw')
+        var randomWordForDrawer = words[Math.floor(Math.random() * words.length)];
+        state.userWhoDraws['randomWord'] = randomWordForDrawer;
+    }
+    
+    var displayRandomWordForDrawer = function(userWhoDraws){
+        wordToDrawDiv.text('The word you have to draw is:' + ' ' + userWhoDraws.randomWord)
+    }
+    
+    var userChoseCorrectWord = function(userGuess){
+        console.log(userGuess.guess)
+        if(userGuess.guess === state.userWhoDraws.randomWord){
+            alert()
+            whoIsTheDrawerDiv.html(userGuess.user + ' ' + 'wins!!! Press button to play again')
+        }
     }
     
     
@@ -56,13 +89,23 @@ var pictionary = function() {
        event.preventDefault();
        userWrapDiv.hide();
        state.user['nickname'] = usernameInput.val();
+       state.user['id'] = socket.io.engine.id;
        socket.emit('users', state.user);
-       guess.show()
+       playButton.show();
     });
+    
+    // when user presses play button
+    playButton.on('click', function(event){
+        event.preventDefault()
+        socket.emit('word', state.userWhoDraws)
+        if(state.user.nickname !== state.userWhoDraws.nickname){
+            guess.show()
+        }
+    })
     
     // when user moves mouse
     canvas.on('mousemove', function(event, userWhoDraws) {
-        if(drawing && state.user.nickname === state.userWhoDraws[0].nickname){
+        if(drawing && state.user.nickname === state.userWhoDraws.nickname){
             var offset = canvas.offset();
             var position = {x: event.pageX - offset.left,
                             y: event.pageY - offset.top};
@@ -85,13 +128,11 @@ var pictionary = function() {
         if (event.keyCode != 13) { // Enter
             return;
         }
-        if(state.user.nickname !== state.userWhoDraws[0].nickname){
-            var userGuessInput = guessBox.val();
-            var userWhoGuessed = state.user.nickname
-            var userGuess = {user:userWhoGuessed, guess:userGuessInput}
-            socket.emit('guess', userGuess)
-            guessBox.val('');
-        }
+        var userGuessInput = guessBox.val();
+        var userWhoGuessed = state.user.nickname
+        var userGuess = {user:userWhoGuessed, guess:userGuessInput}
+        socket.emit('guess', userGuess)
+        guessBox.val('');
     };
     
     
@@ -104,6 +145,10 @@ var pictionary = function() {
     guessBox.on('keydown', onKeyDown);
     
     socket.on('guess', displayOtherUsersGuess)
+    
+    socket.on('word', displayRandomWordForDrawer)
+    
+    socket.on('userWins', userChoseCorrectWord)
 };
 
 $(document).ready(function() { // selects the canvas element

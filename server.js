@@ -10,8 +10,6 @@ var io = socket_io(server);
 
 var usersArray = [];
 
-console.log('outside usersarray', usersArray)
-
 io.on('connection', function (socket){
     console.log('client connected')
     
@@ -27,8 +25,15 @@ io.on('connection', function (socket){
     
     socket.on('guess', function(userGuess){
         socket.broadcast.emit('guess', userGuess)
-        
+        io.sockets.emit('userWins', userGuess)
     })
+    
+    socket.on('word', function (userWhoDraws){
+        var userWhoWillDrawId = userWhoDraws.id
+        console.log("this is the user", userWhoDraws)
+        io.sockets.to(userWhoWillDrawId).emit('word', userWhoDraws)
+    })
+    
 })
 
 server.listen(process.env.PORT || 8080);
