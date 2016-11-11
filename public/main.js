@@ -76,9 +76,13 @@ var pictionary = function() {
     var userChoseCorrectWord = function(userGuess){
         console.log(userGuess.guess)
         if(userGuess.guess === state.userWhoDraws.randomWord){
-            alert()
-            whoIsTheDrawerDiv.html(userGuess.user + ' ' + 'wins!!! Press button to play again')
+            alert(userGuess.user + ' ' + 'wins')
+            // whoIsTheDrawerDiv.html(userGuess.user + ' ' + 'wins!!! Press button to play again');
         }
+    }
+    
+    var userDisconnected = function(user){
+        alert(user + ' ' + "went offline");
     }
     
     
@@ -149,6 +153,8 @@ var pictionary = function() {
     socket.on('word', displayRandomWordForDrawer)
     
     socket.on('userWins', userChoseCorrectWord)
+    
+    socket.on('user-has-disconnected', userDisconnected)
 };
 
 $(document).ready(function() { // selects the canvas element

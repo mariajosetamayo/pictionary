@@ -32,8 +32,12 @@ io.on('connection', function (socket){
         var userWhoWillDrawId = userWhoDraws.id
         console.log("this is the user", userWhoDraws)
         io.sockets.to(userWhoWillDrawId).emit('word', userWhoDraws)
-    })
+    });
     
+    socket.on('disconnect', function(user){
+        console.log("user disconnected")
+        socket.broadcast.emit('user-has-disconnected', socket.user.nickname);
+    });
 })
 
 server.listen(process.env.PORT || 8080);
