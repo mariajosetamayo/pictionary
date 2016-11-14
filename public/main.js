@@ -79,12 +79,9 @@ var pictionary = function() {
     };
     
     var userChoseCorrectWord = function(userGuess, correctWord){
-        console.log("the correct guess would be ", state.userWhoDraws.randomWord)
-        console.log("this is the user guess", userGuess.guess);
-        console.log("this is the user who made a guess", userGuess.user)
-        console.log('this is the correct word', correctWord)
         if(userGuess.guess === correctWord){
             alert(userGuess.user + ' ' + 'wins');
+            state.user['winner'] = userGuess.user
             playAgainButton.show();
         }
     };
@@ -137,9 +134,10 @@ var pictionary = function() {
         guessBox.val('');
     };
     
+    
     ///// Listeners for DOM events //////
         
-       guessBox.on('keydown', onKeyDown);
+    guessBox.on('keydown', onKeyDown);
     
     ///// Listeners for server events //////
     
@@ -152,7 +150,6 @@ var pictionary = function() {
     socket.on('userWins', userChoseCorrectWord);
     
     socket.on('user-has-disconnected', userDisconnected);
-    
 };
 
 $(document).ready(function() { // selects the canvas element
