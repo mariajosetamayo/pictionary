@@ -1,0 +1,110 @@
+
+
+/// Current Logic. 
+
+1. [C]  Muestra el input box. 
+        El usuario pone el nombre y hace submit -> se manda un evento "users" al servidor. {"new-user"}
+2. [S]  Agraega el usuario a un array. -> manda el evento "Drawer" con todos los usuarios. {"users"}
+3. [C]  Recibe el evento 'Drawer. Que calcula el state.drawer y el state.randomWord. 
+        (Todos calculan esto, guardado en cada cliente). 
+        - state.drawer siempre es el mismo por q se calcula a partir de users. 
+        - state.randomWord se calcula aleatoriamente, diferente para cada cliente. 
+4. [C]  El usuario hace click en play -> manda el evento "word" si es el drawer. Contiene state.userWhoDraws {"userWhoDraws"}
+5. [S]  El servidor emite el evento "word" que contiene userWhoDraws. {"userWhoDraws"}
+6. [C]  El cliente recive el evento "word" muestra el random Word si es drawer.  
+        (No se necesita por q ya en el paso 3 ya sabes si el cliente es drawer o no, se podria hacer en el paso 3)
+
+7. [C]  Cliente cuando haya evento draw, se manda un evento al servidor. y este manda de regreso a todos los otros clientes. 
+
+8. [C]  Cliente cuando un guesser haga un guess -> manda el evento guess al servidor con la palabra, y el usuario q adivino. 
+9. [S]  Recibe "guess" y manda "guess" a todos los usuarios
+10. [S] Manda "user wins" a todos los usuarios.
+11. [C]  Cliente recibe "user wins". chequea si la palabra de state.randomWord y ve si es el mismo q la del evento "user-wins"
+
+Eventos actuales
+[C] "Draw"
+[C] "Guess"
+[C] "Users"
+[S] "Users"
+[C] "Word"
+[S] "Draw"
+[S] "Drawer"
+[S] "Guess"
+[S] "Word"
+[S] "Disconnect"
+
+
+
+
+
+
+
+
+/// Fix
+
+1. [C]  Muestra el input box. 
+        El usuario pone el nombre y hace submit -> se manda un evento "users" al servidor. {"new-user"}
+2. [S]  Agraega el usuario a un array. -> manda el evento "Drawer" con todos los usuarios. {"users"}
+3. [C]  Recibe el evento 'Drawer. Que calcula el state.drawer y el state.randomWord. 
+        (Todos calculan esto, guardado en cada cliente). 
+        - state.drawer siempre es el mismo por q se calcula a partir de users. 
+        - state.randomWord se calcula aleatoriamente, diferente para cada cliente. 
+        Ver si (state.user === usersArray[0]), si es true, muestra el random Word(Por que es el drawer).
+4. [C]  El usuario hace click en play -> manda el evento "word" si es el drawer. Contiene state.randomWord 
+5. [S]  El servidor emite el evento "word" que contiene randomWord.
+6. [C]  Todos reciben el evento "word" y graban randomWord en state.randomWord
+  
+        (No se necesita por q ya en el paso 3 ya sabes si el cliente es drawer o no, se podria hacer en el paso 3)
+
+7. [C]  Cliente cuando haya evento draw, se manda un evento al servidor. y este manda de regreso a todos los otros clientes. 
+
+8. [C]  Cliente cuando un guesser haga un guess -> manda el evento guess al servidor con la palabra, y el usuario q adivino. 
+9. [S]  Recibe "guess" y manda "guess" a todos los usuarios
+10. [S] Manda "user wins" a todos los usuarios.
+11. [C]  Cliente recibe "user wins". chequea si la palabra de state.randomWord y ve si es el mismo q la del evento "user-wins"
+
+Eventos actuales
+[C] "Draw"
+[C] "Guess"
+[C] "Users"
+[S] "Users"
+[C] "Word"
+[S] "Draw"
+[S] "Drawer"
+[S] "Guess"
+[S] "Word"
+[S] "Disconnect"
+
+
+
+
+
+
+
+
+// Alternativa
+
+1. [C]  Muestra el input box. 
+        El usuario pone el nombre y hace submit
+        on submit envia el evento "new-user" al servidor
+2. [S]  on "new-user" ve si es el primer jugador
+        si es primero, responde type:"drawer"
+        si es segundo, responde type:"guesser"
+3. [C]  De acuerdo a la respuesta, pone la interfaz de drawer/guesser. 
+
+4. [C]  Cliente cuando haya evento draw, se manda un evento al servidor. y este manda de regreso a todos los otros clientes. 
+
+5. [C]  Cliente cuand un guesser haga un guess -> manda el evento guess al servidor con la palabra
+6. [S]  on "guess", ve si fue correcto 
+        Si fue correcto manda a todos "Tal ususario gano"
+        
+Eventos
+[C] "new-user"
+[C] "draw"
+[C] "guess"
+[C] "disconnect"
+[S] "user wins"
+[S] "user type"  // si es drawer manda userType + word.
+
+
+Todo el logic en el servidor, Solo el display logic en el client. 

@@ -15,11 +15,12 @@ var pictionary = function() {
     var userWrapDiv = $('#nicknameWrap');
     var nicknameForm = $('#nicknameForm');
     var mainGame = $('#main');
-    var usernameInput = $('#usernameInput')
-    var whoIsTheDrawerDiv = $('#whoIsTheDrawer')
-    var topMessage = $('#top-message')
-    var playButton = $('#playButton')
-    var wordToDrawDiv = $('#wordToDraw')
+    var usernameInput = $('#usernameInput');
+    var whoIsTheDrawerDiv = $('#whoIsTheDrawer');
+    var topMessage = $('#top-message');
+    var playButton = $('#playButton');
+    var playAgainButton = $('#playAgainButton');
+    var wordToDrawDiv = $('#wordToDraw');
     var words = [
         "word", "letter", "number", "person", "pen", "class", "people",
         "sound", "water", "side", "place", "man", "men", "woman", "women", "boy",
@@ -61,23 +62,45 @@ var pictionary = function() {
     };
     
     var displayWhoIsDrawer = function(usersArray){
+        console.log("users array", usersArray)
+        console.log("users array length ", usersArray.length)
+        console.log("users array first ", usersArray[0])
+        console.log("the current users nickname is ", state.user.nickname)
+        if((state.user.nickname === usersArray[0].nickname) && (usersArray.length === 1)){
+            var randomWordForDrawer = words[Math.floor(Math.random() * words.length)];
+            state.userWhoDraws['randomWord'] = randomWordForDrawer;
+
+            wordToDrawDiv.text('The word you have to draw is:' + ' ' + state.userWhoDraws.randomWord);
+        }
+        
         var userWhoWillDraw = usersArray.splice(0,1);
         state.userWhoDraws['nickname'] = userWhoWillDraw[0].nickname;
         state.userWhoDraws['id'] = userWhoWillDraw[0].id;
+        //new
+        socket.emit('word', state.userWhoDraws);
+        //
         whoIsTheDrawerDiv.text('It is' + ' ' + state.userWhoDraws.nickname + "'s" + ' ' + 'turn to draw');
-        var randomWordForDrawer = words[Math.floor(Math.random() * words.length)];
-        state.userWhoDraws['randomWord'] = randomWordForDrawer;
+        if(state.user.nickname !== state.userWhoDraws.nickname){
+            guess.show();
+        }
     };
     
-    var displayRandomWordForDrawer = function(userWhoDraws){
-        wordToDrawDiv.text('The word you have to draw is:' + ' ' + userWhoDraws.randomWord);
-    };
+    // var displayRandomWordForDrawer = function(userWhoDraws){
+    //     console.log("this is the array",usersArray[0].nickname)
+    //      if(state.user.nickname === usersArray[0].nickname){
+    //         //  var randomWordForDrawer = words[Math.floor(Math.random() * words.length)];
+    //         //  state.userWhoDraws['randomWord'] = randomWordForDrawer;
+    //          wordToDrawDiv.text('The word you have to draw is:' + ' ' + userWhoDraws.randomWord);
+    //      }
+    // };
     
     var userChoseCorrectWord = function(userGuess){
-        console.log(userGuess.guess);
+        console.log("the correct guess would be ", state.userWhoDraws.randomWord)
+        console.log("this is the user guess", userGuess.guess);
+        console.log("this is the user who made a guess", userGuess.user)
         if(userGuess.guess === state.userWhoDraws.randomWord){
             alert(userGuess.user + ' ' + 'wins');
-            // whoIsTheDrawerDiv.html(userGuess.user + ' ' + 'wins!!! Press button to play again');
+            playAgainButton.show();
         }
     };
     
@@ -93,20 +116,21 @@ var pictionary = function() {
        userWrapDiv.hide();
        state.user['nickname'] = usernameInput.val();
        state.user['id'] = socket.io.engine.id;
-       socket.emit('users', state.user);
+       socket.emit('new-user', state.user);
        playButton.show();
     });
     
     // when user presses play button
-    playButton.on('click', function(event){
-        event.preventDefault();
-        if(state.user.nickname === state.userWhoDraws.nickname){
-            socket.emit('word', state.userWhoDraws);
-        }
-        if(state.user.nickname !== state.userWhoDraws.nickname){
-            guess.show();
-        }
-    });
+    // playButton.on('click', function(event){
+    //     event.preventDefault();
+    //     if(state.user.nickname === state.userWhoDraws.nickname){
+    //         socket.emit('word', state.userWhoDraws);
+    //     }
+    //     if(state.user.nickname !== state.userWhoDraws.nickname){
+    //         guess.show();
+    //         // console.log("user who draws", state.userWhoDraws.randomWord)
+    //     }
+    // });
     
     // when user moves mouse
     canvas.on('mousemove', function(event, userWhoDraws) {
@@ -140,23 +164,36 @@ var pictionary = function() {
         guessBox.val('');
     };
     
+    ///// Listeners for DOM events //////
+        
+       guessBox.on('keydown', onKeyDown);
+    
     ///// Listeners for server events //////
     
-    socket.on('drawer', displayWhoIsDrawer);
+    socket.on('all-users', displayWhoIsDrawer);  
     
     socket.on('draw', draw);
     
-    guessBox.on('keydown', onKeyDown);
-    
     socket.on('guess', displayOtherUsersGuess);
     
-    socket.on('word', displayRandomWordForDrawer);
+    // socket.on('word', displayWhoIsDrawer);
     
     socket.on('userWins', userChoseCorrectWord);
     
     socket.on('user-has-disconnected', userDisconnected);
+    
 };
 
 $(document).ready(function() { // selects the canvas element
     pictionary();
 });
+
+///// codigo pendiente //////
+
+// whoIsTheDrawerDiv.html(userGuess.user + ' ' + 'wins!!! Press button to play again');
+
+// if user pressed play again button
+    // playAgainButton.on('click', function(event){
+    //     event.preventDefault();
+        
+    // })
