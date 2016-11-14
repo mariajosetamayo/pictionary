@@ -17,7 +17,6 @@ io.on('connection', function (socket){
     socket.on('new-user', function(user) {
         socket.user = user;
         usersArray.push(user);
-        console.log("USERS ARRAY IN SERVER: ", usersArray)
         socket.emit('all-users', usersArray);
         io.sockets.emit('word', usersArray)
     });
