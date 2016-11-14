@@ -27,18 +27,12 @@ io.on('connection', function (socket){
     });
     
     socket.on('guess', function(userGuess){
-        console.log('userguess', userGuess)
         socket.broadcast.emit('guess', userGuess);
-        io.sockets.emit('userWins', userGuess);
+        io.sockets.emit('userWins', userGuess, wordForDrawer);
     });
     
     socket.on('word', function (userWhoDraws){
-        // var userWhoWillDrawId = userWhoDraws.id;
-        // // io.sockets.to(userWhoWillDrawId).emit('word', userWhoDraws);
-        // io.sockets.emit('word', userWhoDraws);
-       wordForDrawer = userWhoDraws.randomWord
-       console.log("this is the word", wordForDrawer)
-        // io.sockets.emit(userWhoDraws.randomWord)
+       wordForDrawer = userWhoDraws;
     });
     
     socket.on('disconnect', function(user){

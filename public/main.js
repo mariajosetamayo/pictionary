@@ -62,43 +62,28 @@ var pictionary = function() {
     };
     
     var displayWhoIsDrawer = function(usersArray){
-        console.log("users array", usersArray)
-        console.log("users array length ", usersArray.length)
-        console.log("users array first ", usersArray[0])
-        console.log("the current users nickname is ", state.user.nickname)
         if((state.user.nickname === usersArray[0].nickname) && (usersArray.length === 1)){
             var randomWordForDrawer = words[Math.floor(Math.random() * words.length)];
             state.userWhoDraws['randomWord'] = randomWordForDrawer;
-
+            socket.emit('word', state.userWhoDraws.randomWord);
             wordToDrawDiv.text('The word you have to draw is:' + ' ' + state.userWhoDraws.randomWord);
         }
         
         var userWhoWillDraw = usersArray.splice(0,1);
         state.userWhoDraws['nickname'] = userWhoWillDraw[0].nickname;
         state.userWhoDraws['id'] = userWhoWillDraw[0].id;
-        //new
-        socket.emit('word', state.userWhoDraws);
-        //
         whoIsTheDrawerDiv.text('It is' + ' ' + state.userWhoDraws.nickname + "'s" + ' ' + 'turn to draw');
         if(state.user.nickname !== state.userWhoDraws.nickname){
             guess.show();
         }
     };
     
-    // var displayRandomWordForDrawer = function(userWhoDraws){
-    //     console.log("this is the array",usersArray[0].nickname)
-    //      if(state.user.nickname === usersArray[0].nickname){
-    //         //  var randomWordForDrawer = words[Math.floor(Math.random() * words.length)];
-    //         //  state.userWhoDraws['randomWord'] = randomWordForDrawer;
-    //          wordToDrawDiv.text('The word you have to draw is:' + ' ' + userWhoDraws.randomWord);
-    //      }
-    // };
-    
-    var userChoseCorrectWord = function(userGuess){
+    var userChoseCorrectWord = function(userGuess, correctWord){
         console.log("the correct guess would be ", state.userWhoDraws.randomWord)
         console.log("this is the user guess", userGuess.guess);
         console.log("this is the user who made a guess", userGuess.user)
-        if(userGuess.guess === state.userWhoDraws.randomWord){
+        console.log('this is the correct word', correctWord)
+        if(userGuess.guess === correctWord){
             alert(userGuess.user + ' ' + 'wins');
             playAgainButton.show();
         }
@@ -119,18 +104,6 @@ var pictionary = function() {
        socket.emit('new-user', state.user);
        playButton.show();
     });
-    
-    // when user presses play button
-    // playButton.on('click', function(event){
-    //     event.preventDefault();
-    //     if(state.user.nickname === state.userWhoDraws.nickname){
-    //         socket.emit('word', state.userWhoDraws);
-    //     }
-    //     if(state.user.nickname !== state.userWhoDraws.nickname){
-    //         guess.show();
-    //         // console.log("user who draws", state.userWhoDraws.randomWord)
-    //     }
-    // });
     
     // when user moves mouse
     canvas.on('mousemove', function(event, userWhoDraws) {
@@ -175,8 +148,6 @@ var pictionary = function() {
     socket.on('draw', draw);
     
     socket.on('guess', displayOtherUsersGuess);
-    
-    // socket.on('word', displayWhoIsDrawer);
     
     socket.on('userWins', userChoseCorrectWord);
     
